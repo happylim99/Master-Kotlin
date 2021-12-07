@@ -43,7 +43,7 @@ class MasterProductSrvImpl(
 
     override fun deleteOne(uid: String): String {
         val theId = repo.deleteByUid(uid)
-        return if(theId == null) "not ok" else "ok"
+        return if(theId.equals(0)) "not ok" else "ok"
     }
 
     override fun showAllValid() = customFindAll(false)
@@ -55,14 +55,14 @@ class MasterProductSrvImpl(
     override fun productWantCategory(req: CategoryProductReq): MasterProduct {
         var product = repo.findByUid(req.productUid) ?: throw CException("Product not found")
         val category = catRepo.findByUid(req.categoryUid) ?: throw CException("Category not found")
-        product!!.category!!.add(category)
+        product.category!!.add(category)
         return repo.save(product)
     }
 
     override fun productRemoveCategory(req: CategoryProductReq): MasterProduct {
         var product = repo.findByUid(req.productUid) ?: throw CException("Product not found")
         val category = catRepo.findByUid(req.categoryUid) ?: throw CException("Category not found")
-        product!!.category!!.remove(category)
+        product.category!!.remove(category)
         return repo.save(product)
     }
 }

@@ -38,7 +38,7 @@ class DetailProductImageSrvImpl(
 
     override fun deleteOne(uid: String): String {
         val theId = repo.deleteByNewName(uid)
-        return if(theId == null) "not ok" else "ok"
+        return if(theId.equals(0)) "not ok" else "ok"
     }
 
     override fun showAllValid() = customFindAll(false)

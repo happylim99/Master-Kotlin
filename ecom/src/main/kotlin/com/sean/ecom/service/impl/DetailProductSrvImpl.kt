@@ -49,7 +49,7 @@ class DetailProductSrvImpl(
 
     override fun deleteOne(uid: String): String {
         val theId = repo.deleteByUid(uid)
-        return if(theId == null) "not ok" else "ok"
+        return if(theId.equals(0)) "not ok" else "ok"
     }
 
     override fun showAllValid() = customFindAll(false)
