@@ -25,12 +25,16 @@ class JpaConfig(
     private val env: Environment
 ) {
 
-    @Primary
     @Bean
     @ConfigurationProperties(prefix = "spring.datasource")
-    fun factoryDataSource(): DataSource = DataSourceBuilder.create().build()
+    fun factoryDataSource(): DataSource {
+        return DataSourceBuilder.create().apply {
+            if(env.getProperty("spring.datasource.driverClassName").isNullOrBlank()) {
+                driverClassName("com.mysql.cj.jdbc.Driver")
+            }
+        }.build()
+    }
 
-    @Primary
     @Bean
     fun entityManagerFactory(): LocalContainerEntityManagerFactoryBean =
         (LocalContainerEntityManagerFactoryBean()).apply {
@@ -40,22 +44,26 @@ class JpaConfig(
             jpaPropertyMap.putAll(properties())
         }
 
-    @Primary
     @Bean
     fun transactionManager() = JpaTransactionManager(entityManagerFactory().`object`!!)
 
     private fun properties(): HashMap<String, Object> {
         var prop = HashMap<String, Object>()
-        prop["spring.jpa.hibernate.ddl-auto"] =
-            env.getProperty("spring.jpa.hibernate.ddl-auto") as Object
-        prop["hibernate.dialect"] =
-            "org.hibernate.dialect.MySQL5InnoDBDialect" as Object
+        var ddlAuto = env.getProperty("spring.jpa.hibernate.ddl-auto")
+        if(ddlAuto.isNullOrBlank() || ddlAuto.contains("create", ignoreCase = true)) {
+            ddlAuto = "update"
+        }
+        prop["spring.jpa.hibernate.ddl-auto"] = ddlAuto as Object
+        var dialect = env.getProperty("spring.jpa.database-platform")
+        if(dialect.isNullOrBlank()) {
+            dialect = "org.hibernate.dialect.MySQL5InnoDBDialect"
+        }
+        prop["spring.jpa.database-platform"] = dialect as Object
         prop["hibernate.physical_naming_strategy"] =
             CamelCaseToUnderscoresNamingStrategy::class.java.name as Object
         prop["hibernate.implicit_naming_strategy"] =
             SpringImplicitNamingStrategy::class.java.name as Object
-        prop["hibernate.id.new_generator_mappings"] =
-            false as Object
+//        prop["hibernate.id.new_generator_mappings"] = false as Object
         return prop
     }
 }
