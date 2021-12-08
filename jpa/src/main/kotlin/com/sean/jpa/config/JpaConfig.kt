@@ -53,8 +53,8 @@ class JpaConfig(
         if(ddlAuto.isNullOrBlank() || ddlAuto.contains("create", ignoreCase = true)) {
             ddlAuto = "update"
         }
-        prop["spring.jpa.hibernate.ddl-auto"] = ddlAuto as Object
-        var dialect = env.getProperty("spring.jpa.database-platform")
+        prop["hibernate.hbm2ddl.auto"] = ddlAuto as Object
+        var dialect = env.getProperty("hibernate.dialect")
         if(dialect.isNullOrBlank()) {
             dialect = "org.hibernate.dialect.MySQL5InnoDBDialect"
         }
